@@ -1,12 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import HeroSection from "@/components/home/HeroSection";
+import AboutSection from "@/components/home/AboutSection";
+import CategoriesSection from "@/components/home/CategoriesSection";
+import FeaturedProducts from "@/components/home/FeaturedProducts";
+import WhyChooseUs from "@/components/home/WhyChooseUs";
+import NewsSection from "@/components/home/NewsSection";
+import ZaloButton from "@/components/ZaloButton";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <Header />
+      <main>
+        <HeroSection />
+        <AboutSection />
+        <CategoriesSection />
+        <FeaturedProducts />
+        <WhyChooseUs />
+        <NewsSection />
+      </main>
+      <Footer />
+      <ZaloButton />
     </div>
   );
 };
