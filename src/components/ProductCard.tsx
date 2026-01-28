@@ -9,9 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Product;
+  viewMode?: "grid" | "list";
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const discount = getDiscountPercent(product.price, product.originalPrice);
