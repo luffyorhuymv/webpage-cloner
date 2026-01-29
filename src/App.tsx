@@ -14,6 +14,9 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
+import WarrantyPolicy from "./pages/WarrantyPolicy";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import ShoppingGuide from "./pages/ShoppingGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +39,9 @@ const App = () => (
             <Route path="/lien-he" element={<Contact />} />
             <Route path="/tin-tuc" element={<News />} />
             <Route path="/tin-tuc/:slug" element={<NewsDetail />} />
+            <Route path="/chinh-sach-bao-hanh" element={<WarrantyPolicy />} />
+            <Route path="/chinh-sach-van-chuyen" element={<ShippingPolicy />} />
+            <Route path="/huong-dan-mua-hang" element={<ShoppingGuide />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
