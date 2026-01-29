@@ -1,151 +1,183 @@
 import { useParams, Link } from "react-router-dom";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import ZaloButton from "@/components/ZaloButton";
+import PageLayout from "@/components/layout/PageLayout";
 import { newsPosts } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
+import { Calendar, User, ArrowLeft, ArrowRight, Share2, Facebook, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar, User, ArrowLeft, ArrowRight } from "lucide-react";
 
 const NewsDetail = () => {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const post = newsPosts.find((p) => p.slug === slug);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
 
   if (!post) {
     return (
-      <div className="min-h-screen">
-        <Header />
-        <main className="pt-32 lg:pt-40 pb-16">
-          <div className="container-custom text-center py-16">
-            <h1 className="text-2xl font-bold mb-4">Không tìm thấy bài viết</h1>
-            <Link to="/tin-tuc">
-              <Button>Quay lại tin tức</Button>
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <PageLayout
+        title="Không tìm thấy"
+        breadcrumbs={[{ label: "Tin tức", href: "/tin-tuc" }, { label: "Không tìm thấy" }]}
+      >
+        <div className="bg-card rounded-lg border p-12 text-center">
+          <p className="text-muted-foreground text-lg mb-4">Bài viết không tồn tại</p>
+          <Link to="/tin-tuc">
+            <Button>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Quay lại tin tức
+            </Button>
+          </Link>
+        </div>
+      </PageLayout>
     );
   }
 
-  const relatedPosts = newsPosts.filter((p) => p.id !== post.id).slice(0, 3);
+  const currentIndex = newsPosts.findIndex((p) => p.id === post.id);
+  const prevPost = currentIndex > 0 ? newsPosts[currentIndex - 1] : null;
+  const nextPost = currentIndex < newsPosts.length - 1 ? newsPosts[currentIndex + 1] : null;
+  const relatedPosts = newsPosts.filter((p) => p.category === post.category && p.id !== post.id).slice(0, 3);
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main className="pt-32 lg:pt-40 pb-16">
-        <article className="container-custom">
-          {/* Breadcrumb */}
-          <nav className="text-sm text-muted-foreground mb-6">
-            <Link to="/" className="hover:text-primary">Trang chủ</Link>
-            <span className="mx-2">/</span>
-            <Link to="/tin-tuc" className="hover:text-primary">Tin tức</Link>
-            <span className="mx-2">/</span>
-            <span className="text-foreground line-clamp-1">{post.title}</span>
-          </nav>
+    <PageLayout
+      title={post.title}
+      breadcrumbs={[
+        { label: "Tin tức", href: "/tin-tuc" },
+        { label: post.title },
+      ]}
+      sidebarProps={{
+        showCategories: true,
+        showBestSellers: false,
+        showContact: true,
+        showSearch: true,
+      }}
+    >
+      <article className="bg-card rounded-lg border overflow-hidden">
+        {/* Featured Image */}
+        <div className="aspect-video overflow-hidden">
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <header className="mb-8">
-              <Badge variant="secondary" className="mb-4">
-                {post.category}
-              </Badge>
-              <h1 className="text-2xl lg:text-4xl font-bold mb-4">{post.title}</h1>
-              <div className="flex items-center gap-6 text-muted-foreground">
-                <span className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  {formatDate(post.createdAt)}
-                </span>
-                <span className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  {post.author}
-                </span>
-              </div>
-            </header>
-
-            {/* Featured Image */}
-            <div className="aspect-video rounded-lg overflow-hidden mb-8">
-              <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
+        {/* Content */}
+        <div className="p-6">
+          {/* Meta */}
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-sm">
+            <Badge className="bg-primary hover:bg-primary/90">{post.category}</Badge>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>
+                {new Date(post.createdAt).toLocaleDateString("vi-VN", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
             </div>
-
-            {/* Content */}
-            <div className="prose prose-lg max-w-none mb-12">
-              <p className="lead text-xl text-muted-foreground mb-6">{post.excerpt}</p>
-              <p>{post.content}</p>
-              
-              {/* Placeholder content */}
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                commodo consequat.
-              </p>
-              <p>
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center py-6 border-t">
-              <Link to="/tin-tuc">
-                <Button variant="outline">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Quay lại
-                </Button>
-              </Link>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <User className="h-4 w-4" />
+              <span>{post.author}</span>
             </div>
           </div>
 
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <section className="mt-16">
-              <h2 className="text-2xl font-bold mb-8">Bài viết liên quan</h2>
-              <div className="grid md:grid-cols-3 gap-8">
+          {/* Title */}
+          <h1 className="text-2xl lg:text-3xl font-bold mb-6">{post.title}</h1>
+
+          {/* Article Content */}
+          <div className="prose prose-lg max-w-none text-muted-foreground">
+            <p className="lead text-lg">{post.excerpt}</p>
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          </div>
+
+          {/* Share */}
+          <div className="mt-8 pt-6 border-t">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                Chia sẻ:
+              </span>
+              <Button variant="outline" size="icon" className="h-8 w-8">
+                <Facebook className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8">
+                <Twitter className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      {/* Navigation */}
+      <div className="grid md:grid-cols-2 gap-4 mt-6">
+        {prevPost ? (
+          <Link
+            to={`/tin-tuc/${prevPost.slug}`}
+            className="bg-card rounded-lg border p-4 group hover:border-primary transition-colors"
+          >
+            <span className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+              <ArrowLeft className="h-3 w-3" />
+              Bài trước
+            </span>
+            <h4 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">
+              {prevPost.title}
+            </h4>
+          </Link>
+        ) : (
+          <div />
+        )}
+
+        {nextPost && (
+          <Link
+            to={`/tin-tuc/${nextPost.slug}`}
+            className="bg-card rounded-lg border p-4 group hover:border-primary transition-colors text-right"
+          >
+            <span className="text-xs text-muted-foreground flex items-center justify-end gap-1 mb-1">
+              Bài tiếp
+              <ArrowRight className="h-3 w-3" />
+            </span>
+            <h4 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">
+              {nextPost.title}
+            </h4>
+          </Link>
+        )}
+      </div>
+
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <div className="mt-8">
+          <div className="bg-card rounded-lg border overflow-hidden">
+            <div className="bg-primary text-primary-foreground px-6 py-4">
+              <h3 className="text-lg font-bold">Bài viết liên quan</h3>
+            </div>
+            <div className="p-4">
+              <div className="grid gap-4">
                 {relatedPosts.map((relatedPost) => (
-                  <article key={relatedPost.id} className="bg-card rounded-lg border overflow-hidden">
-                    <Link to={`/tin-tuc/${relatedPost.slug}`}>
-                      <div className="aspect-video overflow-hidden">
-                        <img
-                          src={relatedPost.image}
-                          alt={relatedPost.title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    </Link>
-                    <div className="p-4">
-                      <Link to={`/tin-tuc/${relatedPost.slug}`}>
-                        <h3 className="font-semibold hover:text-primary transition-colors line-clamp-2">
-                          {relatedPost.title}
-                        </h3>
-                      </Link>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {formatDate(relatedPost.createdAt)}
-                      </p>
+                  <Link
+                    key={relatedPost.id}
+                    to={`/tin-tuc/${relatedPost.slug}`}
+                    className="flex gap-4 group"
+                  >
+                    <div className="w-24 h-16 flex-shrink-0 rounded overflow-hidden">
+                      <img
+                        src={relatedPost.image}
+                        alt={relatedPost.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
                     </div>
-                  </article>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                        {relatedPost.title}
+                      </h4>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        {new Date(relatedPost.createdAt).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
-            </section>
-          )}
-        </article>
-      </main>
-      <Footer />
-      <ZaloButton />
-    </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </PageLayout>
   );
 };
 
