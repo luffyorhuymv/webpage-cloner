@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, FolderTree, ShoppingCart, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Package, FolderTree, ShoppingCart, FileText, Download, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Stats {
   products: number;
@@ -18,6 +20,7 @@ const Dashboard = () => {
     posts: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -40,6 +43,35 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
+  const handleExportWordPress = async () => {
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("export-wordpress");
+      
+      if (error) {
+        throw error;
+      }
+
+      // Create blob and download
+      const blob = new Blob([data], { type: "application/xml" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `wordpress-export-${new Date().toISOString().split("T")[0]}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Xuất file WordPress XML thành công!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Không thể xuất file. Vui lòng thử lại sau.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const statCards = [
     { title: "Sản phẩm", value: stats.products, icon: Package, color: "text-blue-500" },
     { title: "Danh mục", value: stats.categories, icon: FolderTree, color: "text-green-500" },
@@ -49,7 +81,17 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Dashboard</h2>
+        <Button onClick={handleExportWordPress} disabled={exporting}>
+          {exporting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 h-4 w-4" />
+          )}
+          Xuất WordPress XML
+        </Button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => (
